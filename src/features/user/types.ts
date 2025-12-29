@@ -1,0 +1,33 @@
+export interface LoginAuthReq {
+  username: string,
+  password: string
+}
+
+export interface UserReq {
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  email?: string;
+  password?: string;
+  mobileNumber?: string;
+  roles?: number[];
+  isActive?: boolean;
+}
+
+
+import type { RoleRes } from "../role/type";
+
+export interface UserRes {
+  id: string;                  
+  firstName: string;
+  lastName: string;
+  username: string;
+  email?: string;
+  mobileNumber?: string;
+  roles: RoleRes[];
+  imageUrl?: string; 
+  createdAt: string;           
+  updatedAt: string;          
+  lastLoginAt?: string;       
+  isActive: boolean;
+}

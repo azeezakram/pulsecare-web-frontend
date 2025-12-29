@@ -1,9 +1,7 @@
-import './App.css'
-
 function App() {
   return (
     <>
-      <div>Testing</div>
+      <div className="text-red-700">Testing</div>
     </>
   )
 }
