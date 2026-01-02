@@ -8,91 +8,85 @@ import api from "axios";
 type AuthState = {
     token: string | null;
     username: string | null;
-    roles: string[];
+    role: string | null;
     currentUser: UserRes | null;
     isLoading: boolean;
     error: string | null;
     rememberMe: boolean;
     persistEnabled: boolean;
-    activeRole: string | null;
 
     setToken: (token: string | null) => void;
     setUsername: (username: string | null) => void;
-    setRoles: (roles: string[]) => void;
+    setRole: (role: string | null) => void;
     setCurrentUser: (user: UserRes | null) => void;
     setRememberMe: (remember: boolean) => void;
-    setActiveRole: (role: string) => void;
 
     login: (data: { username: string; password: string }, remember: boolean) => Promise<void>;
     logout: () => void;
     fetchCurrentUser: () => Promise<void>;
 };
 
+
 export const useAuthStore = create<AuthState>()(
     persist(
         (set, get) => ({
             token: null,
             username: null,
-            roles: [],
+            role: null,
             currentUser: null,
             isLoading: false,
             error: null,
             rememberMe: false,
             persistEnabled: false,
-            activeRole: null,
 
             setToken: (token) => set({ token }),
             setUsername: (username) => set({ username }),
-            setRoles: (roles) => set({ roles }),
+            setRole: (role) => set({ role }),
             setCurrentUser: (user) => set({ currentUser: user }),
             setRememberMe: (remember) => set({ rememberMe: remember }),
-            setActiveRole: (role) => set({ activeRole: role }),
 
             login: async (data, remember) => {
                 set({ isLoading: true, error: null });
+
                 try {
                     const res = await loginUser(data);
 
-                    // Set activeRole immediately if single role
-                    if (res.roles.length === 1) set({ activeRole: res.roles[0] });
+                    if (remember) localStorage.setItem("auth-rememberMe", "true");
+                    else localStorage.removeItem("auth-rememberMe");
 
-                    if (res.token && res.username) {
-                        // Only persist "remember me" in localStorage
-                        if (remember) localStorage.setItem("auth-rememberMe", "true");
-                        else localStorage.removeItem("auth-rememberMe"); // ensure unremembered login doesn't store it
+                    localStorage.removeItem("auth-storage");
+                    sessionStorage.removeItem("auth-storage");
 
-                        // Clear old storage
-                        localStorage.removeItem("auth-storage");
-                        sessionStorage.removeItem("auth-storage");
-
-                        set({
-                            token: res.token,
-                            username: res.username,
-                            roles: res.roles,
-                            rememberMe: remember,
-                            persistEnabled: true,
-                        });
-                    }
+                    set({
+                        token: res.token,
+                        username: res.username,
+                        role: res.role,
+                        rememberMe: remember,
+                        persistEnabled: true,
+                    });
                 } catch (err: unknown) {
-                    if (api.isAxiosError(err)) set({ error: err.response?.data?.message || err.message });
-                    else if (err instanceof Error) set({ error: err.message });
-                    else set({ error: "Unexpected error" });
+                    if (api.isAxiosError(err))
+                        set({ error: err.response?.data?.message || err.message });
+                    else if (err instanceof Error)
+                        set({ error: err.message });
+                    else
+                        set({ error: "Unexpected error" });
                 } finally {
                     set({ isLoading: false });
                 }
             },
 
 
+
             logout: async () => {
                 set({
                     token: null,
                     username: null,
-                    roles: [],
+                    role: null,
                     currentUser: null,
                     error: null,
                     rememberMe: false,
                     persistEnabled: false,
-                    activeRole: null,
                 });
 
 
@@ -132,15 +126,15 @@ export const useAuthStore = create<AuthState>()(
                     }
                 },
                 setItem: (name, value) => {
-                    try {
-                        const rememberRaw = localStorage.getItem("auth-rememberMe");
-                        const remember = rememberRaw ? JSON.parse(rememberRaw) : false;
-                        if (remember) {
-                            localStorage.setItem(name, JSON.stringify(value));
-                        } else {
-                            sessionStorage.setItem(name, JSON.stringify(value));
-                        }
-                    } catch { }
+
+                    const rememberRaw = localStorage.getItem("auth-rememberMe");
+                    const remember = rememberRaw ? JSON.parse(rememberRaw) : false;
+                    if (remember) {
+                        localStorage.setItem(name, JSON.stringify(value));
+                    } else {
+                        sessionStorage.setItem(name, JSON.stringify(value));
+                    }
+
                 },
                 removeItem: (name) => {
                     localStorage.removeItem(name);
@@ -156,7 +150,7 @@ export const useAuthStore = create<AuthState>()(
                     return {
                         token: state.token,
                         username: state.username,
-                        roles: state.roles,
+                        role: state.role,
                     };
                 }
                 return {};

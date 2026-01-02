@@ -6,5 +6,5 @@ export interface LoginAuthReq {
 export interface LoginAuthRes {
   token: string,
   username: string,
-  roles: string[]
+  role: string
 }

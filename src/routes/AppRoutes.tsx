@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "../pages/LoginPage";
-import SelectRolePage from "../pages/SelectRolePage";
 import ProtectedRoute from "./ProtectedRoute";
 import RequireRole from "./RequireRole";
 import PublicRoute from "./PublicRoute";
@@ -10,10 +9,8 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
 
-        {/* DEFAULT */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* LOGIN (public only) */}
         <Route
           path="/login"
           element={
@@ -23,17 +20,17 @@ export default function AppRoutes() {
           }
         />
 
-        {/* ROLE SELECT */}
         <Route
-          path="/select-role"
+          path="/dashboard/admin"
           element={
             <ProtectedRoute>
-              <SelectRolePage />
+              <RequireRole role="ADMIN">
+                <h1>Admin page</h1>
+              </RequireRole>
             </ProtectedRoute>
           }
         />
 
-        {/* DOCTOR */}
         <Route
           path="/dashboard/doctor"
           element={
@@ -45,7 +42,6 @@ export default function AppRoutes() {
           }
         />
 
-        {/* NURSE */}
         <Route
           path="/dashboard/nurse"
           element={
@@ -57,10 +53,10 @@ export default function AppRoutes() {
           }
         />
 
-        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
     </BrowserRouter>
+
   );
 }
