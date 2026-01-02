@@ -33,6 +33,17 @@ export default function AppRoutes() {
           }
         />
 
+        <Route
+          path="/dashboard/admin"
+          element={
+            <ProtectedRoute>
+              <RequireRole role="ADMIN">
+                <h1>Admin page</h1>
+              </RequireRole>
+            </ProtectedRoute>
+          }
+        />
+
         {/* DOCTOR */}
         <Route
           path="/dashboard/doctor"
