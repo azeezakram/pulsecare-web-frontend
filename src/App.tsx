@@ -1,9 +1,7 @@
-function App() {
-  return (
-    <>
-      <div className="text-red-700">Testing</div>
-    </>
-  )
-}
+import AppRoutes from "./routes/AppRoutes";
 
-export default App
+export default function App() {
+  return (
+    <AppRoutes />
+  );
+}

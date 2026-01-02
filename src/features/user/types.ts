@@ -1,8 +1,3 @@
-export interface LoginAuthReq {
-  username: string,
-  password: string
-}
-
 export interface UserReq {
   firstName?: string;
   lastName?: string;
