@@ -55,30 +55,6 @@ export default function AppRoutes() {
         <Route path="/dashboard" element={<ProtectedRoute><DashboardPage/></ProtectedRoute>}>
           <Route index element={<Navigate to={`/dashboard/${role}/home`} replace />}/>
 
-<<<<<<< HEAD
-        <Route
-          path="/dashboard/admin"
-          element={
-            <ProtectedRoute>
-              <RequireRole role="ADMIN">
-                <h1>Admin page</h1>
-              </RequireRole>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* DOCTOR */}
-        <Route
-          path="/dashboard/doctor"
-          element={
-            <ProtectedRoute>
-              <RequireRole role="DOCTOR">
-                <h1>Doctor page</h1>
-              </RequireRole>
-            </ProtectedRoute>
-          }
-        />
-=======
           {/* ADMIN */}
           <Route path="admin/home" element={<RequireRole role="ADMIN"><AdminHomePage/></RequireRole>} />
           <Route path="admin/users" element={<RequireRole role="ADMIN"><AdminUsersPage/></RequireRole>} />
@@ -113,7 +89,6 @@ export default function AppRoutes() {
           <Route path="doctor/settings" element={<RequireRole role="DOCTOR"><DoctorSettingPage/></RequireRole>} />
           
         </Route>
->>>>>>> v2
 
 
         <Route path="*" element={<Navigate to="/" replace />} />
