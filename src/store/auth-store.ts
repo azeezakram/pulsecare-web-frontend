@@ -4,11 +4,12 @@ import type { UserRes } from "../features/user/types";
 import * as userApi from "../api/user.api";
 import { loginUser } from "../api/auth.api";
 import api from "axios";
+import type { Role } from "../features/role/type";
 
 type AuthState = {
     token: string | null;
     username: string | null;
-    role: string | null;
+    role: Role | null;
     currentUser: UserRes | null;
     isLoading: boolean;
     error: string | null;
@@ -17,9 +18,10 @@ type AuthState = {
 
     setToken: (token: string | null) => void;
     setUsername: (username: string | null) => void;
-    setRole: (role: string | null) => void;
+    setRole: (role: Role | null) => void;
     setCurrentUser: (user: UserRes | null) => void;
     setRememberMe: (remember: boolean) => void;
+    
 
     login: (data: { username: string; password: string }, remember: boolean) => Promise<void>;
     logout: () => void;
@@ -42,8 +44,9 @@ export const useAuthStore = create<AuthState>()(
             setToken: (token) => set({ token }),
             setUsername: (username) => set({ username }),
             setRole: (role) => set({ role }),
-            setCurrentUser: (user) => set({ currentUser: user }),
+            setCurrentUser: (user) => set({ currentUser: user}),
             setRememberMe: (remember) => set({ rememberMe: remember }),
+            
 
             login: async (data, remember) => {
                 set({ isLoading: true, error: null });
@@ -54,13 +57,13 @@ export const useAuthStore = create<AuthState>()(
                     if (remember) localStorage.setItem("auth-rememberMe", "true");
                     else localStorage.removeItem("auth-rememberMe");
 
-                    localStorage.removeItem("auth-storage");
-                    sessionStorage.removeItem("auth-storage");
+                    // localStorage.removeItem("auth-storage");
+                    // sessionStorage.removeItem("auth-storage");
 
                     set({
                         token: res.token,
                         username: res.username,
-                        role: res.role,
+                        role: res.role as Role,
                         rememberMe: remember,
                         persistEnabled: true,
                     });
@@ -144,7 +147,7 @@ export const useAuthStore = create<AuthState>()(
             ,
 
             partialize: (state: AuthState) => {
-                if (!state.persistEnabled) return {};
+                // if (!state.persistEnabled) return {};
 
                 if (state.token && state.username) {
                     return {

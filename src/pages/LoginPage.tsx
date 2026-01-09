@@ -23,7 +23,6 @@ export default function LoginPage() {
     password?: string;
   }>({});
 
-  // ---------------- Validation ----------------
   const validate = (field: string, value: string) => {
     if (field === "username") {
       if (!value.trim()) return "Username is required";
@@ -51,7 +50,6 @@ export default function LoginPage() {
     !!formErrors.username ||
     !!formErrors.password;
 
-  // ---------------- Submit ----------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -68,7 +66,6 @@ export default function LoginPage() {
     await login(form, remember);
   };
 
-  // ---------------- Error Toast ----------------
   useEffect(() => {
     if (error) {
       toast.current?.show({
@@ -80,14 +77,13 @@ export default function LoginPage() {
     }
   }, [error]);
 
-  // ---------------- Redirect After Login ----------------
   useEffect(() => {
     if (token && role) {
       navigate(`/dashboard/${role.toLowerCase()}`, { replace: true });
     }
   }, [token, role, navigate]);
 
-  // ---------------- UI ----------------
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Toast ref={toast} />
@@ -97,12 +93,11 @@ export default function LoginPage() {
           <img className="h-20" src={logo2} alt="PulseCare" />
         </div>
 
-        <h2 className="text-3xl font-extralight text-gray-800 mb-8 text-center">
+        <h2 className="text-3xl font-light text-gray-800 mb-8 text-center">
           Welcome Back
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Username */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">
               Username
@@ -122,7 +117,6 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">
               Password
@@ -143,7 +137,6 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Remember Me */}
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -154,7 +147,6 @@ export default function LoginPage() {
             <label className="ml-2 text-gray-700">Remember me</label>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={isLoading || isFormInvalid}

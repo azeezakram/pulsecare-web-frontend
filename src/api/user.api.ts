@@ -34,10 +34,27 @@ export const deleteUser = async (id: string): Promise<unknown> => {
     return response.data;
 };
 
-export const fetchProfilePicture = async (id: string): Promise<Blob> => {
-  const response = await api.get(`${BASE_URL}/${id}/image`, {
-    responseType: "blob",
-  });
-  return response.data;
+export const isUsernameTaken = async (username: string): Promise<boolean> => {
+    const response = await api.get<ResponseBody<boolean>>(`${BASE_URL}/username/validate/${username}`);
+    return response.data.data;
+};
+
+export const fetchProfilePicture = async (id: string): Promise<string | null> => {
+  if (!id) return null;
+  try {
+    const response = await api.get(`${BASE_URL}/${id}/image`, {
+      responseType: "blob",
+    });
+    return URL.createObjectURL(response.data);
+  } catch {
+    return null;
+  }
+};
+
+export const updateProfileImage = async (id: string, image: FormData): Promise<unknown> => {
+    const response = await api.put(`${BASE_URL}/${id}/image`, image, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
 };
 
