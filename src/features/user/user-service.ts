@@ -24,6 +24,14 @@ export const useUserById = (id: string) => {
     });
 };
 
+export const useUserByUsername = (username: string) => {
+  return useQuery<UserRes, Error>({
+    queryKey: ["user", username],
+    queryFn: () => userApi.fetchUserByUsername(username)                   
+  });
+};
+
+
 export const useAllUsers = () => {
     return useQuery<UserRes[], Error>({
         queryKey: ["users"],
@@ -90,3 +98,19 @@ export const useUserProfilePicture = (id: string) => {
         queryFn: () => userApi.fetchProfilePicture(id),
     });
 };
+
+export const useUpdateUserProfilePicture = () => {
+  return useMutation({
+    mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
+      userApi.updateProfileImage(id, formData),
+  });
+};
+
+export const useIsUsernameTaken = (username: string) => {
+  return useQuery<boolean, Error>({
+    queryKey: ["isUsernameTaken", username],
+    queryFn: () => userApi.isUsernameTaken(username),
+    enabled: !!username.trim(),
+    retry: false,
+  });
+}

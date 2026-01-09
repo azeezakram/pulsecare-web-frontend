@@ -5,7 +5,7 @@ export interface UserReq {
   email?: string;
   password?: string;
   mobileNumber?: string;
-  roles?: number[];
+  roles?: number;
   isActive?: boolean;
 }
 
@@ -19,7 +19,7 @@ export interface UserRes {
   username: string;
   email?: string;
   mobileNumber?: string;
-  roles: RoleRes[];
+  role: RoleRes;
   imageUrl?: string; 
   createdAt: string;           
   updatedAt: string;          

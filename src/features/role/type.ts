@@ -8,3 +8,6 @@ export interface RoleRes {
 export interface RoleReq {
   name: string;
 }
+
+export type Role = "ADMIN" | "DOCTOR" | "NURSE";
+
