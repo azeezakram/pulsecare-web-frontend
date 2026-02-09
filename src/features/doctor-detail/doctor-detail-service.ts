@@ -17,14 +17,14 @@ export const useDoctorDetail = (id: number) => {
   });
 };
 
-export const useDoctorDetailByUserId = (userId: string | undefined) => {
-  return useQuery({
-    queryKey: ["doctor-detail", "user", userId],
-    queryFn: () => docApi.fetchDoctorDetailByUserId(userId!),
-    enabled: !!userId,
+export const useDoctorDetailByUserId = (id: string, options?: { enabled?: boolean }) =>
+  useQuery({
+    queryKey: ["doctor-detail", id],
+    queryFn: () => docApi.fetchDoctorDetailByUserId(id),
+    enabled: options?.enabled ?? true,
     retry: false,
   });
-};
+
 
 export const useCreateDoctorDetail = () => {
   const queryClient = useQueryClient();
@@ -39,7 +39,7 @@ export const useCreateDoctorDetail = () => {
 export const useUpdateDoctorDetail = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId, data }: { userId: string; data: DoctorDetailReq }) => 
+    mutationFn: ({ userId, data }: { userId: string; data: DoctorDetailReq }) =>
       docApi.updateDoctorDetail(userId, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["doctor-details"] });

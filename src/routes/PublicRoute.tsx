@@ -7,9 +7,9 @@ export default function PublicRoute({ children }: { children: React.ReactNode })
 
   if (!token) return children;
 
-  if (role === "ADMIN") return <Navigate to="/dashboard/admin/home" replace />;
-  if (role === "DOCTOR") return <Navigate to="/dashboard/doctor/home" replace />;
-  if (role === "NURSE")  return <Navigate to="/dashboard/nurse/home" replace />;
+  if (role === "ADMIN" || role === "SUPER_ADMIN") return <Navigate to="/dashboard/admin/home" replace />;
+  if (role === "DOCTOR" || role === "SUPER_DOCTOR") return <Navigate to="/dashboard/doctor/home" replace />;
+  if (role === "NURSE" || role === "SUPER_NURSE")  return <Navigate to="/dashboard/nurse/home" replace />;
 
   return <Navigate to="/dashboard" replace />;
 }

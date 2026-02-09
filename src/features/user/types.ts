@@ -2,10 +2,10 @@ export interface UserReq {
   firstName?: string;
   lastName?: string;
   username?: string;
-  email?: string;
+  email?: string | null;
   password?: string;
-  mobileNumber?: string;
-  roles?: number;
+  mobileNumber?: string | null;
+  roleId?: number;
   isActive?: boolean;
 }
 
