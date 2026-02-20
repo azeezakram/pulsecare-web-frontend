@@ -13,8 +13,6 @@ export interface PatientAdmissionRes {
   patientId?: number;
   patientName?: string;
   queueId?: number;
-  wardId?: number;
-  wardName?: string;
   bedId?: number;
   status?: PatientAdmissionStatus | string;
   admittedAt?: string;

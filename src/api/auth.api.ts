@@ -11,3 +11,9 @@ export const loginUser = async (data: LoginAuthReq): Promise<LoginAuthRes> => {
   );
   return response.data.data;
 };
+
+
+export const verifyPassword = async (data: { username: string; password: string }): Promise<boolean> => {
+  const res = await api.post<boolean>("/auth/verify-password", data);
+  return res.data;
+};

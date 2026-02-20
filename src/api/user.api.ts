@@ -1,4 +1,5 @@
 import api from "./axios";
+import axios from "axios";
 import type { UserReq, UserRes } from "../features/user/types";
 import type { ResponseBody } from "../common/res-template";
 
@@ -19,7 +20,7 @@ export const fetchAllUsers = async (): Promise<UserRes[]> => {
     return response.data.data;
 };
 
-export const createUser = async (user: UserReq): Promise<UserRes> => {
+export const createUser = async (user: UserReq): Promise<UserRes> => {  
     const response = await api.post<ResponseBody<UserRes>>(BASE_URL, user);
     return response.data.data;
 };
@@ -35,21 +36,20 @@ export const deleteUser = async (id: string): Promise<unknown> => {
 };
 
 export const isUsernameTaken = async (username: string): Promise<boolean> => {
-    const response = await api.get<ResponseBody<boolean>>(`${BASE_URL}/username/validate/${username}`);
-    return response.data.data;
+    const response = await api.get<boolean>(`${BASE_URL}/username/validate/${username}`);
+    return response.data;
 };
 
 export const fetchProfilePicture = async (id: string): Promise<string | null> => {
-  if (!id) return null;
   try {
-    const response = await api.get(`${BASE_URL}/${id}/image`, {
-      responseType: "blob",
-    });
-    return URL.createObjectURL(response.data);
-  } catch {
-    return null;
+    const res = await api.get(`/user/${id}/image`, { responseType: "blob" });
+    return URL.createObjectURL(res.data);
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 404) return null;
+    throw err;
   }
 };
+
 
 export const updateProfileImage = async (id: string, image: FormData): Promise<unknown> => {
     const response = await api.put(`${BASE_URL}/${id}/image`, image, {

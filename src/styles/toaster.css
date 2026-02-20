@@ -1,0 +1,33 @@
+.p-toast {
+  z-index: 2000;
+}
+
+.p-toast-message {
+  background: rgba(18, 18, 18, 0.65) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.p-toast-message-icon {
+  color: red;
+}
+
+.p-toast-summary {
+  font-weight: 700;
+}
+
+.p-toast-detail {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.p-toast-icon-close {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.p-toast-icon-close:hover {
+  color: #ffffff;
+}

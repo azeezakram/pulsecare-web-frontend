@@ -9,5 +9,5 @@ export interface RoleReq {
   name: string;
 }
 
-export type Role = "ADMIN" | "DOCTOR" | "NURSE";
+export type Role = "ADMIN" | "SUPER_ADMIN" | "DOCTOR" | "SUPER_DOCTOR" | "NURSE" | "SUPER_NURSE";
 

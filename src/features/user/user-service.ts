@@ -21,13 +21,17 @@ export const useUserById = (id: string) => {
                 throw err;
             }
         },
+        retry: false,
+        refetchOnWindowFocus: false,
     });
 };
 
 export const useUserByUsername = (username: string) => {
   return useQuery<UserRes, Error>({
     queryKey: ["user", username],
-    queryFn: () => userApi.fetchUserByUsername(username)                   
+    queryFn: () => userApi.fetchUserByUsername(username)   ,
+    retry: false,
+    refetchOnWindowFocus: false,                
   });
 };
 
@@ -37,6 +41,8 @@ export const useAllUsers = () => {
         queryKey: ["users"],
         queryFn: () => userApi.fetchAllUsers(),
         enabled: true,
+        retry: false,
+        refetchOnWindowFocus: false,
     });
 };
 
@@ -92,12 +98,15 @@ export const useDeleteUser = () => {
     });
 };
 
-export const useUserProfilePicture = (id: string) => {
-    return useQuery({
-        queryKey: ["user", id, "image"],
-        queryFn: () => userApi.fetchProfilePicture(id),
-    });
-};
+export const useUserProfilePicture = (id: string, opts?: { enabled?: boolean }) =>
+  useQuery({
+    queryKey: ["user", id, "image"],
+    queryFn: () => userApi.fetchProfilePicture(id),
+    enabled: opts?.enabled ?? !!id,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
 
 export const useUpdateUserProfilePicture = () => {
   return useMutation({
@@ -106,11 +115,12 @@ export const useUpdateUserProfilePicture = () => {
   });
 };
 
-export const useIsUsernameTaken = (username: string) => {
+export const useIsUsernameTaken = (username: string, options?: { enabled?: boolean }) => {
   return useQuery<boolean, Error>({
     queryKey: ["isUsernameTaken", username],
     queryFn: () => userApi.isUsernameTaken(username),
-    enabled: !!username.trim(),
+    enabled: options?.enabled ?? !!username.trim(),
     retry: false,
   });
-}
+};
+

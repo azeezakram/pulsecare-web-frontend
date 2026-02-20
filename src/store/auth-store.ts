@@ -5,6 +5,7 @@ import * as userApi from "../api/user.api";
 import { loginUser } from "../api/auth.api";
 import api from "axios";
 import type { Role } from "../features/role/type";
+import type { ErrorResponseBody } from "../common/res-template";
 
 type AuthState = {
     token: string | null;
@@ -67,13 +68,8 @@ export const useAuthStore = create<AuthState>()(
                         rememberMe: remember,
                         persistEnabled: true,
                     });
-                } catch (err: unknown) {
-                    if (api.isAxiosError(err))
-                        set({ error: err.response?.data?.message || err.message });
-                    else if (err instanceof Error)
-                        set({ error: err.message });
-                    else
-                        set({ error: "Unexpected error" });
+                } catch (err) {
+                    set({ error: (err as ErrorResponseBody).message });
                 } finally {
                     set({ isLoading: false });
                 }
