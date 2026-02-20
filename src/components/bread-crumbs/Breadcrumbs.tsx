@@ -2,40 +2,58 @@ import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/auth-store"; // wherever your store is
+import { useAuthStore } from "../../store/auth-store";
+import { MENU_BY_ROLE } from "../navbar/menu.config";
 
 export default function BreadCrumbs() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const role = useAuthStore((s) => s.role); // must be inside component
+  const role = useAuthStore((s) => s.role);
 
-  if (!role) return null; // handle if role not loaded yet
+  if (!role) return null;
 
-  const parts = pathname.replace("/dashboard/", "").split("/");
+  const pathnames = pathname.split("/").filter((x) => x);
 
   return (
     <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-      <Link underline="hover" color="inherit" onClick={() => navigate("/dashboard")}>
+      <Link 
+        underline="hover" 
+        color="inherit" 
+        onClick={() => navigate("/dashboard")}
+        sx={{ cursor: 'pointer' }}
+      >
         Dashboard
       </Link>
 
-      {parts.map((part, idx) => {
-        const route = `/dashboard/${parts.slice(0, idx + 1).join("/")}`;
-        const isLast = idx === parts.length - 1;
+      {pathnames.map((value, index) => {
+        if (value === "dashboard" || value.toUpperCase() === role) return null;
+
+        const isLast = index === pathnames.length - 1;
+        const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
+
+        const menuItem = MENU_BY_ROLE[role as keyof typeof MENU_BY_ROLE]?.find(
+          (item) => item.path === routeTo
+        );
+
+        const label = menuItem ? menuItem.label : value.replace(/-/g, " ");
 
         return isLast ? (
-          <Typography key={route} color="text.primary" sx={{ textTransform: "capitalize" }}>
-            {part.replace("-", " ")}
+          <Typography 
+            key={routeTo} 
+            color="text.primary" 
+            sx={{ textTransform: "capitalize" }}
+          >
+            {label}
           </Typography>
         ) : (
           <Link
-            key={route}
+            key={routeTo}
             underline="hover"
             color="inherit"
-            onClick={() => navigate(route)}
+            onClick={() => navigate(routeTo)}
             sx={{ textTransform: "capitalize", cursor: "pointer" }}
           >
-            {part.replace("-", " ")}
+            {label}
           </Link>
         );
       })}

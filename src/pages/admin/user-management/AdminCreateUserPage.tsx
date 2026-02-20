@@ -266,7 +266,7 @@ export default function AdminCreateUserPage() {
         : "");
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ py: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Typography variant="h5" fontWeight={700}>
           Add New User
@@ -276,7 +276,7 @@ export default function AdminCreateUserPage() {
         </Button>
       </Stack>
 
-      <Card>
+      <Card variant="outlined">
         <CardContent>
           <Stack spacing={2}>
             <Typography fontWeight={700}>Personal Details</Typography>

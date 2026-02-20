@@ -5,6 +5,7 @@ export interface PatientReq {
   nic?: string;
   gender?: string;
   phone?: string;
+  isActive?:boolean;
 }
 
 export interface PatientRes {
@@ -15,5 +16,6 @@ export interface PatientRes {
   nic?: string;
   gender?: string;
   phone?: string;
+  isActive?:boolean;
   createdAt: string;
 }

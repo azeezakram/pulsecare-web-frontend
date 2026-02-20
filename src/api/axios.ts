@@ -1,6 +1,5 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useAuthStore } from "../store/auth-store";
-import type { ErrorResponseBody } from "../common/res-template";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
 
@@ -18,25 +17,68 @@ api.interceptors.request.use((config) => {
 
 
 api.interceptors.response.use(
-  (res) => res,
-  (err: AxiosError<ErrorResponseBody>) => {
-    const status = err.response?.status;
-
-    const isExpected404 =
-      status === 404
-
-    if (!isExpected404) {
-      const backendMsg = err.response?.data?.message;
-      const msg = backendMsg || err.message || `Request failed (${status ?? "unknown"})`;
-      console.error("API Error:", status, msg);
+  (response) => response,
+  (error) => {
+    if (!error.response) {
+      return Promise.reject({
+        status: 0,
+        message: "Network error. Please check your connection.",
+      });
     }
 
-    const backendMsg = err.response?.data?.message;
-    const msg = backendMsg || err.message || `Request failed (${status ?? "unknown"})`;
+    const { status, data } = error.response;
 
-    return Promise.reject(new Error(msg));
+    switch (status) {
+      case 400:
+        return Promise.reject({
+          status,
+          message: data?.message,
+        });
+
+      case 401:
+        useAuthStore.getState().logout();
+        return Promise.reject({
+          status,
+          message: data?.message,
+        });
+
+      case 403:
+        return Promise.reject({
+          status,
+          message: "You are not authorized to perform this action.",
+        });
+
+      case 404:
+        return Promise.reject({
+          status,
+          message: data?.message ?? "Resource not found.",
+        });
+
+      case 409:
+        return Promise.reject({
+          status,
+          message: data?.message ?? "Conflict occurred.",
+        });
+
+      case 422:
+        return Promise.reject({
+          status,
+          message: data?.message ?? "Validation error.",
+        });
+
+      case 500:
+        return Promise.reject({
+          status,
+          message: "Something went wrong. Please try again later.",
+        });
+
+      default:
+        return Promise.reject({
+          status,
+          message: data?.message ?? "Unexpected error occurred.",
+        });
+    }
   }
 );
-
 
 export default api;

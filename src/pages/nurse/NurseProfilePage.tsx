@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/auth-store";
 import {
@@ -10,7 +11,14 @@ import {
   Stack,
   Avatar,
   FormHelperText,
+  InputAdornment,
+  IconButton,
+  Divider,
+  Typography,
 } from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
 import type { UserReq } from "../../features/user/types";
 import {
   useUpdateUserProfilePicture,
@@ -24,7 +32,10 @@ export default function NurseProfilePage() {
   const setCurrentUser = useAuthStore((s) => s.setCurrentUser);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
+
   const profileImage = useUserProfilePicture(user?.id || "");
+  const uploadMutation = useUpdateUserProfilePicture();
+  const updateMutation = useUpdateUser();
 
   const [form, setForm] = useState<UserReq>(() => ({
     firstName: user?.firstName ?? "",
@@ -32,15 +43,25 @@ export default function NurseProfilePage() {
     username: user?.username ?? "",
     email: user?.email ?? "",
     mobileNumber: user?.mobileNumber ?? "",
+    password: "",
   }));
 
-  const [preview, setPreview] = useState<string>(() => profileImage.data || "");
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
 
-  const uploadMutation = useUpdateUserProfilePicture();
-  const updateMutation = useUpdateUser();
+  const filePreview = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
+  useEffect(() => {
+    if (!filePreview) return;
+    setPreview(filePreview);
+    return () => URL.revokeObjectURL(filePreview);
+  }, [filePreview]);
+
+  useEffect(() => {
+    if (!file) setPreview(profileImage.data || "");
+  }, [profileImage.data, file]);
 
   if (!user) return <GradinentSpinner />;
 
@@ -66,6 +87,10 @@ export default function NurseProfilePage() {
       errs.mobileNumber = "Must be 10 digits";
     }
 
+    if (form.password?.trim() && form.password.trim().length < 6) {
+      errs.password = "Password must be at least 6 characters";
+    }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -79,8 +104,17 @@ export default function NurseProfilePage() {
     const selected = e.target.files?.[0];
     if (!selected) return;
     setFile(selected);
-    setPreview(URL.createObjectURL(selected));
   };
+
+  const normalizePayload = (req: UserReq): UserReq => ({
+    ...req,
+    firstName: req.firstName?.trim(),
+    lastName: req.lastName?.trim(),
+    username: req.username?.trim(),
+    email: req.email?.trim() ? req.email.trim() : null,
+    mobileNumber: req.mobileNumber?.trim() ? req.mobileNumber.trim() : null,
+    password: req.password?.trim() ? req.password.trim() : undefined,
+  });
 
   const handleSave = async () => {
     if (!validate()) return;
@@ -93,7 +127,8 @@ export default function NurseProfilePage() {
         await uploadMutation.mutateAsync({ id: user.id, formData: fd });
       }
 
-      const updatedUser = await updateMutation.mutateAsync({ id: user.id, user: form });
+      const payload = normalizePayload(form);
+      const updatedUser = await updateMutation.mutateAsync({ id: user.id, user: payload });
 
       if (updatedUser.username !== user.username) {
         alert("Username changed, please log in again.");
@@ -103,6 +138,7 @@ export default function NurseProfilePage() {
       }
 
       setCurrentUser(updatedUser);
+      setForm((p) => ({ ...p, password: "" }));
       navigate("/dashboard/nurse/settings");
     } catch (error: any) {
       if (error.response?.status === 409) {
@@ -118,25 +154,38 @@ export default function NurseProfilePage() {
     }
   };
 
+  const busy = saving || uploadMutation.isPending || updateMutation.isPending;
+
   return (
     <Box sx={{ p: 3 }}>
-      <Card>
+      <Card sx={{ borderRadius: 3 }}>
         <CardContent>
           <Stack spacing={2} alignItems="center">
-            <Avatar src={preview} sx={{ width: 150, height: 150 }} />
+            <Stack spacing={0.3} alignItems="center">
+              <Typography fontWeight={900} fontSize={18}>
+                Nurse Profile
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Update details • picture • optional password
+              </Typography>
+            </Stack>
+
+            <Divider flexItem />
+
+            <Avatar src={preview} sx={{ width: 140, height: 140 }} />
 
             <Button variant="text" component="label" sx={{ textTransform: "none" }}>
               Change Profile Picture
               <input hidden accept="image/*" type="file" onChange={handleFileChange} />
             </Button>
 
-            {(["firstName", "lastName", "username", "email", "mobileNumber"] as (keyof UserReq)[])
-              .map((key) => (
-                <div style={{ width: "100%" }} key={key}>
+            {(["firstName", "lastName", "username", "email", "mobileNumber"] as (keyof UserReq)[]).map(
+              (key) => (
+                <Box sx={{ width: "100%" }} key={key}>
                   <TextField
-                    label={key === "mobileNumber" ? "Mobile Number" : key.replace(/^\w/, c => c.toUpperCase())}
+                    label={key === "mobileNumber" ? "Mobile Number" : key.replace(/^\w/, (c) => c.toUpperCase())}
                     fullWidth
-                    value={form[key] || ""}
+                    value={(form[key] as any) || ""}
                     onChange={(e) => handleChange(key, e.target.value)}
                     error={!!errors[key]}
                   />
@@ -145,18 +194,36 @@ export default function NurseProfilePage() {
                       {errors[key]}
                     </FormHelperText>
                   )}
-                </div>
-              ))}
+                </Box>
+              )
+            )}
+
+            <Box sx={{ width: "100%" }}>
+              <TextField
+                label="New Password (optional)"
+                type={showPwd ? "text" : "password"}
+                fullWidth
+                value={form.password || ""}
+                onChange={(e) => handleChange("password", e.target.value)}
+                error={!!errors.password}
+                helperText={errors.password || "Leave blank to keep current password"}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPwd((v) => !v)} edge="end">
+                        {showPwd ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
 
             <Stack direction="row" spacing={2}>
-              <Button
-                variant="contained"
-                onClick={handleSave}
-                disabled={uploadMutation.isPending || saving}
-              >
-                {uploadMutation.isPending || saving ? "Saving..." : "Save"}
+              <Button variant="contained" onClick={handleSave} disabled={busy}>
+                {busy ? "Saving..." : "Save"}
               </Button>
-              <Button variant="outlined" onClick={() => navigate("/dashboard/nurse/settings")}>
+              <Button variant="outlined" onClick={() => navigate("/dashboard/nurse/settings")} disabled={busy}>
                 Cancel
               </Button>
             </Stack>

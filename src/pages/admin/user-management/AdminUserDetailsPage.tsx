@@ -51,7 +51,7 @@ export default function AdminUserDetailsPage() {
     );
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ py: 2 }}>
             {/* Breadcrumbs by NAME not ID */}
             {/* <Breadcrumbs sx={{ mb: 2 }}>
         <Link
@@ -75,7 +75,7 @@ export default function AdminUserDetailsPage() {
             </Stack>
 
             {/* Top Profile Card */}
-            <Card sx={{ mb: 3 }}>
+            <Card variant="outlined" sx={{ mb: 3 }}>
                 <CardContent>
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={3} alignItems="center">
                         <Avatar

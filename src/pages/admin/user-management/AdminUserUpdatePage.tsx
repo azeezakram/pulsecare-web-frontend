@@ -14,8 +14,12 @@ import {
   Switch,
   FormControlLabel,
   Chip,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import type { UserReq } from "../../../features/user/types";
 import type { DoctorDetailReq } from "../../../features/doctor-detail/type";
@@ -69,6 +73,7 @@ export default function AdminUpdateUserPage() {
   const [doctorEnabled, setDoctorEnabled] = useState(false);
   const [doctorForm, setDoctorForm] = useState<DoctorDetailReq>({ specializationIds: [] });
   const [doctorErrors, setDoctorErrors] = useState<Record<string, string>>({});
+  const [showPwd, setShowPwd] = useState(false);
 
   const usernameChanged =
     Boolean(userQuery.data?.username) &&
@@ -77,7 +82,7 @@ export default function AdminUpdateUserPage() {
 
   const usernameTakenQuery = useIsUsernameTaken(usernameChanged ? (form.username ?? "") : "");
 
-  
+
   const formInitRef = useRef<string | null>(null);
   useEffect(() => {
     const u = userQuery.data;
@@ -85,22 +90,25 @@ export default function AdminUpdateUserPage() {
     if (formInitRef.current === u.id) return;
     formInitRef.current = u.id;
 
-    setForm({
-      firstName: u.firstName,
-      lastName: u.lastName,
-      username: u.username,
-      email: u.email ?? "",
-      mobileNumber: u.mobileNumber ?? "",
-      isActive: u.isActive,
-      roleId: undefined, 
-      password: "", 
-    });
+    const set = () => {
+      setForm({
+        firstName: u.firstName,
+        lastName: u.lastName,
+        username: u.username,
+        email: u.email ?? "",
+        mobileNumber: u.mobileNumber ?? "",
+        isActive: u.isActive,
+        roleId: undefined,
+        password: "",
+      });
+      setFile(null);
+      setErrors({});
+    }
+    set()
 
-    setFile(null);
-    setErrors({});
   }, [userQuery.data]);
 
-  
+
   const doctorInitRef = useRef<string | null>(null);
   useEffect(() => {
     if (!idSafe) return;
@@ -108,9 +116,13 @@ export default function AdminUpdateUserPage() {
     if (!isDoctor) {
       if (doctorInitRef.current === `not-doctor:${idSafe}`) return;
       doctorInitRef.current = `not-doctor:${idSafe}`;
-      setDoctorEnabled(false);
-      setDoctorForm({ userId: idSafe, licenseNo: "", specializationIds: [] });
-      setDoctorErrors({});
+
+      const set = () => {
+        setDoctorEnabled(false);
+        setDoctorForm({ userId: idSafe, licenseNo: "", specializationIds: [] });
+        setDoctorErrors({});
+      }
+      set()
       return;
     }
 
@@ -119,6 +131,7 @@ export default function AdminUpdateUserPage() {
     doctorInitRef.current = `doctor:${idSafe}`;
 
     if (docQuery.data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDoctorEnabled(true);
       setDoctorForm({
         userId: idSafe,
@@ -131,7 +144,7 @@ export default function AdminUpdateUserPage() {
     }
   }, [idSafe, isDoctor, docQuery.isLoading, docQuery.data]);
 
-  
+
   const allowed = useMemo(() => {
     if (!userQuery.data) return true;
     return canEditUser(myRole, userQuery.data.role?.name);
@@ -243,7 +256,7 @@ export default function AdminUpdateUserPage() {
   const avatarSrc = filePreview || imgQuery.data || undefined;
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ py: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Typography variant="h5" fontWeight={800}>
           Edit User
@@ -253,7 +266,7 @@ export default function AdminUpdateUserPage() {
         </Button>
       </Stack>
 
-      <Card>
+      <Card variant="outlined">
         <CardContent>
           <Stack spacing={2}>
             <Typography fontWeight={800}>Personal Details</Typography>
@@ -319,13 +332,22 @@ export default function AdminUpdateUserPage() {
             </Stack>
 
             <TextField
-              type="password"
+              type={showPwd ? "text" : "password"}
               label="New Password (optional)"
               value={form.password ?? ""}
               onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
               error={!!errors.password}
               helperText={errors.password || "Leave blank to keep current password"}
               fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPwd((v) => !v)} edge="end">
+                      {showPwd ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
             <FormControlLabel

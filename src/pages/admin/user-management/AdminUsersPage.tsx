@@ -189,7 +189,7 @@ export default function AdminUsersPage() {
   const busy = usersQuery.isLoading || deleteUserMutation.isPending;
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ py: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Typography variant="h5" fontWeight={700}>
           User Management
@@ -204,7 +204,7 @@ export default function AdminUsersPage() {
         </Button>
       </Stack>
 
-      <Card sx={{ mb: 3 }}>
+      <Card variant="outlined" sx={{ mb: 3 }}>
         <CardContent>
           <Stack spacing={1.5}>
             <Box ref={searchBoxRef}>

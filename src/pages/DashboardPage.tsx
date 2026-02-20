@@ -1,18 +1,19 @@
-import * as React from "react";
-import { useMemo } from "react";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
+import { createTheme, useColorScheme } from "@mui/material/styles";
+import { Account, AccountPreview, type AccountPreviewProps } from "@toolpad/core/Account";
 import { AppProvider, type Navigation, type Router, type Session } from "@toolpad/core/AppProvider";
 import { DashboardLayout, ThemeSwitcher, type SidebarFooterProps } from "@toolpad/core/DashboardLayout";
-import { Account, AccountPreview, type AccountPreviewProps } from "@toolpad/core/Account";
-import { createTheme, useTheme } from "@mui/material/styles";
-import { Stack, Box, Divider } from "@mui/material";
+import * as React from "react";
+import { useMemo } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
-import { useAuthStore } from "../store/auth-store";
-import { MENU_BY_ROLE } from "../components/navbar/menu.config";
+import darkLogo from "../assets/static/logo/logo-dark.png";
+import lightLogo from "../assets/static/logo/logo-light.png";
 import BreadCrumbs from "../components/bread-crumbs/Breadcrumbs";
-import lightLogo from "../assets/static/logo-light.png";
-import darkLogo from "../assets/static/logo-dark.png";
+import { MENU_BY_ROLE } from "../components/navbar/menu.config";
 import { useUserProfilePicture } from "../features/user/user-service";
+import { useAuthStore } from "../store/auth-store";
 
 const theme = createTheme({
   cssVariables: { colorSchemeSelector: "data-toolpad-color-scheme" },
@@ -29,6 +30,7 @@ function AccountSidebarPreview(props: AccountPreviewProps & { mini: boolean }) {
     </Stack>
   );
 }
+
 
 function SidebarFooterAccount({ mini }: SidebarFooterProps) {
   const PreviewComponent = React.useMemo(() => {
@@ -51,8 +53,7 @@ function SidebarFooterAccount({ mini }: SidebarFooterProps) {
               sx: {
                 overflow: "visible",
                 filter: (t) =>
-                  `drop-shadow(0px 2px 8px ${
-                    t.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.32)"
+                  `drop-shadow(0px 2px 8px ${t.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.32)"
                   })`,
                 mt: 1,
                 "&::before": {
@@ -76,18 +77,126 @@ function SidebarFooterAccount({ mini }: SidebarFooterProps) {
   );
 }
 
-function BrandLogo() {
-  const themeObj = useTheme();
+function toPascalCaseRole(input?: string | null) {
+  if (!input) return "";
+  return input
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function roleChipProps(roleRaw?: string | null) {
+  const r = (roleRaw ?? "").toUpperCase();
+  if (r.includes("ADMIN")) return { color: "secondary" as const };
+  if (r.includes("DOCTOR")) return { color: "success" as const };
+  if (r.includes("NURSE")) return { color: "info" as const };
+  return { color: "default" as const };
+}
+
+function RoleChip({ roleName }: { roleName?: string | null }) {
+  const roleLabel = toPascalCaseRole(roleName);
+  const chipColor = roleChipProps(roleName).color;
+
+  if (!roleLabel) return null;
+
   return (
-    <img
-      src={themeObj.palette.mode === "dark" ? darkLogo : lightLogo}
-      alt="Hospital logo"
-      style={{ height: 35 }}
+    <Chip
+      label={roleLabel}
+      size="small"
+      color={chipColor}
+      variant="filled"
+      clickable={false}
+      sx={{
+        fontWeight: 900,
+        borderRadius: 999,
+        textDecoration: "none",
+        "& *": { textDecoration: "none" },
+      }}
     />
   );
 }
 
-// ✅ Map SUPER roles to the same dashboard group
+
+function BrandLeft({ roleName }: { roleName?: string | null }) {
+  const { mode } = useColorScheme();
+
+  return (
+    <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
+      <img
+        src={mode === "dark" ? lightLogo : darkLogo}
+        alt="Hospital logo"
+        style={{ height: 35 }}
+      />
+      <RoleChip roleName={roleName} />
+    </Stack>
+  );
+}
+
+function ClockPill() {
+  const [now, setNow] = React.useState(() => new Date());
+
+  React.useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <Typography
+      sx={{
+        fontWeight: 900,
+        fontSize: 13,
+        px: 1.2,
+        py: 0.6,
+        borderRadius: 999,
+        bgcolor: "background.paper",
+        border: "1px solid",
+        borderColor: "divider",
+        boxShadow: (t) =>
+          t.palette.mode === "dark"
+            ? "0 8px 18px rgba(0,0,0,0.35)"
+            : "0 8px 18px rgba(0,0,0,0.12)",
+        color: "text.primary",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {now.toLocaleString(undefined, {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })}
+    </Typography>
+  );
+}
+
+function BrandBar({ roleName }: { roleName?: string | null }) {
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        display: "grid",
+        gridTemplateColumns: "auto 1fr auto",
+        alignItems: "center",
+        gap: 1.5,
+      }}
+    >
+      <BrandLeft roleName={roleName} />
+
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <ClockPill />
+      </Box>
+
+      <Box sx={{ width: 28 }} />
+    </Box>
+  );
+}
+
 function roleToGroup(role?: string | null): "admin" | "doctor" | "nurse" | null {
   if (!role) return null;
   const r = role.toUpperCase();
@@ -97,7 +206,6 @@ function roleToGroup(role?: string | null): "admin" | "doctor" | "nurse" | null 
   return null;
 }
 
-// ✅ Map SUPER roles to base menu role
 function roleToMenuRole(role?: string | null): keyof typeof MENU_BY_ROLE | null {
   if (!role) return null;
   const r = role.toUpperCase();
@@ -120,10 +228,9 @@ export default function DashboardPage() {
     if (!user) fetchCurrentUser();
   }, [fetchCurrentUser, user]);
 
-  const group = roleToGroup(role); // admin/doctor/nurse
+  const group = roleToGroup(role);
   const menuRole = roleToMenuRole(role);
 
-  // If role is not recognized, kick to login or a safe page
   React.useEffect(() => {
     if (role && !group) navigate("/login", { replace: true });
   }, [role, group, navigate]);
@@ -161,12 +268,14 @@ export default function DashboardPage() {
     [currentPath, navigate, group]
   );
 
+  const roleName = user?.role?.name ?? (role as any)?.name ?? (role as any);
+
   const branding = useMemo(
     () => ({
       title: "",
-      logo: <BrandLogo />,
+      logo: <BrandBar roleName={roleName} />,
     }),
-    []
+    [roleName]
   );
 
   const session = useMemo<Session | null>(
@@ -182,7 +291,7 @@ export default function DashboardPage() {
 
   const authentication = useMemo(
     () => ({
-      signIn: () => {},
+      signIn: () => { },
       signOut: () => {
         logout();
         navigate("/login");
@@ -191,18 +300,12 @@ export default function DashboardPage() {
     [logout, navigate]
   );
 
+
   return (
-    <AppProvider
-      navigation={navigation}
-      router={router}
-      theme={theme}
-      branding={branding}
-      session={session}
-      authentication={authentication}
-    >
+    <AppProvider navigation={navigation} router={router} theme={theme} branding={branding} session={session} authentication={authentication}>
       <DashboardLayout
         slots={{
-          toolbarActions: ThemeSwitcher,
+          toolbarActions: () => <ThemeSwitcher />,
           sidebarFooter: SidebarFooterAccount,
         }}
       >

@@ -18,7 +18,7 @@ export default function SideNav() {
             to={path}
             className={({ isActive }) =>
               `flex items-center gap-3 px-6 py-3 text-sm transition
-               ${isActive ? "bg-slate-800" : "text-slate-300 hover:bg-slate-800"}`
+              ${isActive ? "bg-slate-800" : "text-slate-300 hover:bg-slate-800"}`
             }
           >
             <Icon size={18} />

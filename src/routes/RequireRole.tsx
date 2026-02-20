@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth-store";
 
 type Props = {
-  roles: string[];                 // ✅ allow multiple roles
+  roles: string[];                
   children: React.ReactElement;
 };
 

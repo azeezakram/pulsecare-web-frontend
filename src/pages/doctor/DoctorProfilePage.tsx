@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/auth-store";
 import {
@@ -12,7 +13,14 @@ import {
   FormHelperText,
   MenuItem,
   Chip,
+  InputAdornment,
+  IconButton,
+  Divider,
+  Typography,
 } from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
 import type { UserReq } from "../../features/user/types";
 import type { DoctorDetailReq } from "../../features/doctor-detail/type";
 import {
@@ -35,7 +43,7 @@ export default function DoctorProfilePage() {
   const navigate = useNavigate();
 
   const profileImage = useUserProfilePicture(user?.id || "");
-  const doctorDetailQuery = useDoctorDetailByUserId(user?.id); // only triggers if user?.id exists
+  const doctorDetailQuery = useDoctorDetailByUserId(user?.id || "");
   const updateDoctorDetailMutation = useUpdateDoctorDetail();
   const createDoctorDetailMutation = useCreateDoctorDetail();
   const uploadMutation = useUpdateUserProfilePicture();
@@ -48,6 +56,7 @@ export default function DoctorProfilePage() {
     username: user?.username ?? "",
     email: user?.email ?? "",
     mobileNumber: user?.mobileNumber ?? "",
+    password: "",
   }));
 
   const [doctorForm, setDoctorForm] = useState<DoctorDetailReq>({
@@ -56,32 +65,43 @@ export default function DoctorProfilePage() {
     specializationIds: [],
   });
 
-  const [preview, setPreview] = useState<string>(() => profileImage.data || "");
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState(false);
+  const [savingUser, setSavingUser] = useState(false);
+  const [savingDoctor, setSavingDoctor] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
+
+  const filePreview = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
+  useEffect(() => {
+    if (!filePreview) return;
+    setPreview(filePreview);
+    return () => URL.revokeObjectURL(filePreview);
+  }, [filePreview]);
+
+  useEffect(() => {
+    if (!file) setPreview(profileImage.data || "");
+  }, [profileImage.data, file]);
 
   useEffect(() => {
     if (doctorDetailQuery.data) {
       setDoctorForm({
         licenseNo: doctorDetailQuery.data.licenseNo || "",
         specializationIds: doctorDetailQuery.data.specializations?.map((s) => s.id) || [],
-        userId: user?.id,
+        userId: user?.id || "",
       });
     } else {
-      // No doctor detail yet, initialize with empty but include userId
       setDoctorForm({
         licenseNo: "",
         specializationIds: [],
-        userId: user?.id,
+        userId: user?.id || "",
       });
     }
   }, [doctorDetailQuery.data, user?.id]);
 
-  // Loading condition should only depend on specializations and user
   if (!user || specializationsQuery.isLoading) return <GradinentSpinner />;
 
-  const validate = () => {
+  const validateAll = () => {
     const errs: Record<string, string> = {};
     if (!form.firstName?.trim()) errs.firstName = "First name is required";
     if (!form.lastName?.trim()) errs.lastName = "Last name is required";
@@ -95,6 +115,10 @@ export default function DoctorProfilePage() {
 
     if (form.mobileNumber && !/^\d{10}$/.test(form.mobileNumber))
       errs.mobileNumber = "Must be 10 digits";
+
+    if (form.password?.trim() && form.password.trim().length < 6) {
+      errs.password = "Password must be at least 6 characters";
+    }
 
     if (!doctorForm.licenseNo?.trim()) errs.licenseNo = "License number is required";
     if (!doctorForm.specializationIds || doctorForm.specializationIds.length === 0)
@@ -118,7 +142,6 @@ export default function DoctorProfilePage() {
     const selected = e.target.files?.[0];
     if (!selected) return;
     setFile(selected);
-    setPreview(URL.createObjectURL(selected));
   };
 
   const handleAddSpecialization = (id: number) => {
@@ -127,6 +150,7 @@ export default function DoctorProfilePage() {
         ...prev,
         specializationIds: [...(prev.specializationIds || []), id],
       }));
+      setErrors((prev) => ({ ...prev, specializationIds: "" }));
     }
   };
 
@@ -137,9 +161,19 @@ export default function DoctorProfilePage() {
     }));
   };
 
+  const normalizeUserPayload = (req: UserReq): UserReq => ({
+    ...req,
+    firstName: req.firstName?.trim(),
+    lastName: req.lastName?.trim(),
+    username: req.username?.trim(),
+    email: req.email?.trim() ? req.email.trim() : null,
+    mobileNumber: req.mobileNumber?.trim() ? req.mobileNumber.trim() : null,
+    password: req.password?.trim() ? req.password.trim() : undefined,
+  });
+
   const handleSaveUser = async () => {
-    if (!validate()) return;
-    setSaving(true);
+    if (!validateAll()) return;
+    setSavingUser(true);
     try {
       if (file) {
         const fd = new FormData();
@@ -147,83 +181,113 @@ export default function DoctorProfilePage() {
         await uploadMutation.mutateAsync({ id: user.id, formData: fd });
       }
 
-      const updatedUser = await updateUserMutation.mutateAsync({ id: user.id, user: form });
+      const payload = normalizeUserPayload(form);
+      const updatedUser = await updateUserMutation.mutateAsync({ id: user.id, user: payload });
       setCurrentUser(updatedUser);
 
       if (updatedUser.username !== user.username) {
         alert("Username changed, please log in again.");
-        logout();
-        navigate("/login");
+        await logout();
+        navigate("/login", { replace: true });
         return;
       }
+
+      setForm((p) => ({ ...p, password: "" }));
+      navigate("/dashboard/doctor/settings", { replace: true });
     } catch (error) {
       console.error(error);
     } finally {
-      setSaving(false);
+      setSavingUser(false);
     }
   };
 
   const handleSaveDoctor = async () => {
-    if (!validate()) return;
-    setSaving(true);
+    if (!validateAll()) return;
+    setSavingDoctor(true);
     try {
       if (doctorDetailQuery.data) {
         await updateDoctorDetailMutation.mutateAsync({ userId: user.id, data: doctorForm });
       } else {
         await createDoctorDetailMutation.mutateAsync(doctorForm);
       }
+      navigate("/dashboard/doctor/settings", { replace: true });
     } catch (error) {
       console.error(error);
     } finally {
-      setSaving(false);
+      setSavingDoctor(false);
     }
   };
 
-
+  const busyUser = savingUser || uploadMutation.isPending || updateUserMutation.isPending;
+  const busyDoctor =
+    savingDoctor ||
+    updateDoctorDetailMutation.isPending ||
+    createDoctorDetailMutation.isPending;
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* USER PROFILE CARD */}
-      <Card sx={{ mb: 4 }}>
+      <Card sx={{ mb: 4, borderRadius: 3 }}>
         <CardContent>
           <Stack spacing={2}>
-            <h2 style={{ margin: 0 }}>Personal Details</h2>
+            <Typography fontWeight={900} fontSize={18}>
+              Personal Details
+            </Typography>
+            <Divider />
 
             <Stack spacing={2} alignItems="center">
-              <Avatar src={preview} sx={{ width: 150, height: 150 }} />
+              <Avatar src={preview} sx={{ width: 140, height: 140 }} />
+
               <Button variant="text" component="label" sx={{ textTransform: "none" }}>
                 Change Profile Picture
                 <input hidden accept="image/*" type="file" onChange={handleFileChange} />
               </Button>
 
-              {(["firstName", "lastName", "username", "email", "mobileNumber"] as (keyof UserReq)[])
-                .map((key) => (
-                  <div style={{ width: "100%" }} key={key}>
+              {(["firstName", "lastName", "username", "email", "mobileNumber"] as (keyof UserReq)[]).map(
+                (key) => (
+                  <Box sx={{ width: "100%" }} key={key}>
                     <TextField
-                      label={key === "mobileNumber" ? "Mobile Number" : key.replace(/^\w/, c => c.toUpperCase())}
+                      label={key === "mobileNumber" ? "Mobile Number" : key.replace(/^\w/, (c) => c.toUpperCase())}
                       fullWidth
-                      value={form[key] || ""}
+                      value={(form[key] as any) || ""}
                       onChange={(e) => handleChange(key, e.target.value)}
                       error={!!errors[key]}
                     />
                     {errors[key] && <FormHelperText error>{errors[key]}</FormHelperText>}
-                  </div>
-                ))}
+                  </Box>
+                )
+              )}
+
+              <Box sx={{ width: "100%" }}>
+                <TextField
+                  label="New Password (optional)"
+                  type={showPwd ? "text" : "password"}
+                  fullWidth
+                  value={form.password || ""}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  error={!!errors.password}
+                  helperText={errors.password || "Leave blank to keep current password"}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPwd((v) => !v)} edge="end">
+                          {showPwd ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
 
               <Stack direction="row" spacing={2} width="100%">
-                <Button
-                  variant="contained"
-                  onClick={handleSaveUser}
-                  disabled={uploadMutation.isPending || saving}
-                  fullWidth
-                >
-                  {saving ? "Saving..." : "Save"}
+                <Button variant="contained" onClick={handleSaveUser} disabled={busyUser} fullWidth>
+                  {busyUser ? "Saving..." : "Save"}
                 </Button>
 
                 <Button
                   variant="outlined"
                   onClick={() => navigate("/dashboard/doctor/settings")}
                   fullWidth
+                  disabled={busyUser}
                 >
                   Cancel
                 </Button>
@@ -233,11 +297,13 @@ export default function DoctorProfilePage() {
         </CardContent>
       </Card>
 
-      {/* DOCTOR DETAILS CARD */}
-      <Card>
+      <Card sx={{ borderRadius: 3 }}>
         <CardContent>
           <Stack spacing={2}>
-            <h2 style={{ margin: 0 }}>Medical Details</h2>
+            <Typography fontWeight={900} fontSize={18}>
+              Medical Details
+            </Typography>
+            <Divider />
 
             <TextField
               label="License Number"
@@ -257,57 +323,45 @@ export default function DoctorProfilePage() {
               helperText={errors.specializationIds}
               error={!!errors.specializationIds}
             >
-              {specializationsQuery.data?.length
-                ? specializationsQuery.data
+              {specializationsQuery.data?.length ? (
+                specializationsQuery.data
                   .filter((spec) => !(doctorForm.specializationIds ?? []).includes(spec.id))
                   .map((spec) => (
                     <MenuItem key={spec.id} value={spec.id}>
                       {spec.name}
                     </MenuItem>
                   ))
-                : <MenuItem disabled>No specializations available</MenuItem>
-              }
+              ) : (
+                <MenuItem disabled>No specializations available</MenuItem>
+              )}
             </TextField>
 
             <Stack direction="row" spacing={1} flexWrap="wrap">
               {doctorForm.specializationIds?.map((id) => {
                 const spec = specializationsQuery.data?.find((s) => s.id === id);
-                return spec && (
+                return spec ? (
                   <Chip key={id} label={spec.name} onDelete={() => handleRemoveSpecialization(id)} />
-                );
+                ) : null;
               })}
             </Stack>
 
             <Stack direction="row" spacing={2} width="100%">
-              <Button
-                variant="contained"
-                onClick={handleSaveDoctor}
-                disabled={saving}
-                fullWidth
-              >
-                {saving
-                  ? "Saving..."
-                  : doctorDetailQuery.data
-                    ? "Update"
-                    : "Create"
-                }
+              <Button variant="contained" onClick={handleSaveDoctor} disabled={busyDoctor} fullWidth>
+                {busyDoctor ? "Saving..." : doctorDetailQuery.data ? "Update" : "Create"}
               </Button>
 
               <Button
                 variant="outlined"
                 onClick={() => navigate("/dashboard/doctor/settings")}
                 fullWidth
+                disabled={busyDoctor}
               >
                 Cancel
               </Button>
             </Stack>
-
           </Stack>
         </CardContent>
       </Card>
     </Box>
   );
-
-
-
 }

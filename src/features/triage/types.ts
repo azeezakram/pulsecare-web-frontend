@@ -1,5 +1,5 @@
 export interface TriageReq {
-  name: string;
+  patientId: number;
   sex: number;
   arrivalMode: number;
   injury: number;
@@ -15,7 +15,7 @@ export interface TriageReq {
 
 export interface TriageRes {
   id: number;
-  name: string;
+  patientId: number;
   sex: number;
   arrivalMode: number;
   injury: number;

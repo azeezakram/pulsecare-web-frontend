@@ -6,6 +6,7 @@ export interface PatientQueueReq {
   triageId?: number;
   priority?: QueuePriority;
   status?: QueueStatus;
+  admitted?: boolean | false;
 }
 
 export interface PatientQueueRes {
@@ -19,3 +20,11 @@ export interface PatientQueueRes {
   admitted?: boolean;
   createdAt: string;
 }
+
+export type PatientQueueEvent = {
+  type: "QUEUE_CREATED" | "QUEUE_UPDATED" | "QUEUE_DELETED";
+  queueId: number;
+  payload: PatientQueueRes | null;
+  sentAt: string;
+};
+
