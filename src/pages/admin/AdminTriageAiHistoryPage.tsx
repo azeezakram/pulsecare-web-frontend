@@ -216,7 +216,7 @@ export default function AdminTriagePage() {
   const [editForm, setEditForm] = useState<EditFormState>({
     sex: "0",
     arrivalMode: "1",
-    injury: "2",
+    injury: "1",
     mental: "1",
     pain: "0",
     age: "",
@@ -387,7 +387,7 @@ export default function AdminTriagePage() {
         t.sex === 1 ? "Male" : "Female",
         t.age ?? "",
         arrivalMap[t.arrivalMode] ?? "",
-        t.injury === 1 ? "Yes" : "No",
+        t.injury === 2 ? "Yes" : "No",
         mentalMap[t.mental] ?? "",
         t.pain === 1 ? "Yes" : "No",
         t.severity ?? "",
@@ -432,7 +432,7 @@ export default function AdminTriagePage() {
     setEditForm({
       sex: String(item.sex ?? 0),
       arrivalMode: String(item.arrivalMode ?? 1),
-      injury: String(item.injury ?? 2),
+      injury: String(item.injury ?? 1),
       mental: String(item.mental ?? 1),
       pain: String(item.pain ?? 0),
       age: String(item.age ?? ""),
@@ -971,7 +971,7 @@ export default function AdminTriagePage() {
                               <b>Arrival Mode:</b> {arrivalMap[viewItem.arrivalMode] ?? "—"}
                             </Typography>
                             <Typography>
-                              <b>Injury:</b> {viewItem.injury === 1 ? "Yes" : "No"}
+                              <b>Injury:</b> {viewItem.injury === 2 ? "Yes" : "No"}
                             </Typography>
                             <Typography>
                               <b>Mental Status:</b> {mentalMap[viewItem.mental] ?? "—"}
@@ -1147,8 +1147,8 @@ export default function AdminTriagePage() {
                     helperText={editErrors.injury}
                     fullWidth
                   >
-                    <MenuItem value="1">Yes</MenuItem>
-                    <MenuItem value="2">No</MenuItem>
+                    <MenuItem value="2">Yes</MenuItem>
+                    <MenuItem value="1">No</MenuItem>
                   </TextField>
                 </Grid>
 

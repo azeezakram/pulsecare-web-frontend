@@ -590,7 +590,7 @@ export default function AdminPatientQueuePage() {
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Stack spacing={0.3}>
           <Typography variant="h5" fontWeight={900}>
-            Patient Queue (Admin)
+            Patient Queue Management
           </Typography>
           <Typography variant="body2" color="text.secondary">
             View • Edit • Delete • Search • Sort • Analysis Dashboard

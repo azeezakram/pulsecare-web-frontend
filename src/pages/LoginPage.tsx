@@ -237,7 +237,7 @@ export default function LoginPage() {
                   {isLoading ? "LOGGING IN..." : "Login"}
                 </Button>
 
-                <Typography
+                {/* <Typography
                   variant="caption"
                   sx={{
                     color: "rgba(255,255,255,0.6)",
@@ -247,7 +247,7 @@ export default function LoginPage() {
                   }}
                 >
                   Forgot your password?
-                </Typography>
+                </Typography> */}
               </Stack>
             </Box>
           </Box>

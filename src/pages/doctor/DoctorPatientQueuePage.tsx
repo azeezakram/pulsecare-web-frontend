@@ -463,7 +463,7 @@ export default function DoctorQueuePatientPage() {
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Stack spacing={0.3}>
           <Typography variant="h5" fontWeight={900}>
-            Doctor Queue
+            Patient Queue
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Select a waiting patient • Add prescription • Mark Admit / Outpatient / Cancel

@@ -70,7 +70,7 @@ const DEFAULT_FORM: TriageFormState = {
   patientId: 0,
   sex: 0,
   arrivalMode: 1,
-  injury: 2,
+  injury: 1,
   mental: 1,
   pain: 0,
   age: "25",
@@ -737,8 +737,8 @@ export default function NurseTriageAiPage() {
                       error={!!errors.injury}
                       helperText={errors.injury}
                     >
-                      <MenuItem value={1}>Yes</MenuItem>
-                      <MenuItem value={2}>No</MenuItem>
+                      <MenuItem value={2}>Yes</MenuItem>
+                      <MenuItem value={1}>No</MenuItem>
                     </TextField>
                   </Grid>
 
@@ -1349,7 +1349,7 @@ export default function NurseTriageAiPage() {
                               <b>Arrival Mode:</b> {arrivalMap[viewItem.arrivalMode] ?? "—"}
                             </Typography>
                             <Typography>
-                              <b>Injury:</b> {viewItem.injury === 1 ? "Yes" : "No"}
+                              <b>Injury:</b> {viewItem.injury === 2 ? "Yes" : "No"}
                             </Typography>
                             <Typography>
                               <b>Mental Status:</b> {mentalMap[viewItem.mental] ?? "—"}

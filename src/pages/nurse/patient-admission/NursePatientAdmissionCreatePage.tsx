@@ -29,7 +29,6 @@ import {
 import dayjs from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-// ✅ adjust paths if needed
 import { useAllActivePatients } from "../../../features/patient/patient-service";
 import type { PatientRes } from "../../../features/patient/types";
 
@@ -84,28 +83,23 @@ function matchesPatient(p: PatientRes, term: string) {
 export default function NursePatientAdmissionCreatePage() {
     const navigate = useNavigate();
 
-    // data
     const patientsQuery = useAllActivePatients();
     const deptsQuery = useAllDepartments();
 
     const createAdmission = useCreatePatientAdmission();
     const checkActiveAdmission = useCheckActiveAdmission();
 
-    // UI state: patient search
     const [patientSearch, setPatientSearch] = useState("");
     const [patientSuggestOpen, setPatientSuggestOpen] = useState(false);
     const patientSearchRef = useRef<HTMLDivElement | null>(null);
     const [patientAnchorEl, setPatientAnchorEl] = useState<HTMLElement | null>(null);
     const [patientAnchorWidth, setPatientAnchorWidth] = useState(0);
 
-    // selection
     const [selectedPatient, setSelectedPatient] = useState<PatientRes | null>(null);
 
-    // validation / active admission check
     const [checkingActive, setCheckingActive] = useState(false);
     const [hasActiveAdmission, setHasActiveAdmission] = useState<boolean>(false);
 
-    // create form
     const [deptId, setDeptId] = useState<number | "">("");
     const [wardId, setWardId] = useState<number | "">("");
     const [bedId, setBedId] = useState<number | "">("");
@@ -124,7 +118,6 @@ export default function NursePatientAdmissionCreatePage() {
         createAdmission.isPending ||
         checkingActive;
 
-    // popper sizing
     useEffect(() => {
         const el = patientSearchRef.current;
         if (!el) return;
@@ -162,14 +155,12 @@ export default function NursePatientAdmissionCreatePage() {
         setPatientSearch(patientLabel(p));
         setPatientSuggestOpen(false);
 
-        // reset dependent form
         setDeptId("");
         setWardId("");
         setBedId("");
         setAttempted(false);
         setSubmitError(null);
 
-        // ✅ validate active admission at selection time
         setCheckingActive(true);
         setHasActiveAdmission(false);
         try {
@@ -228,7 +219,7 @@ export default function NursePatientAdmissionCreatePage() {
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                 <Stack spacing={0.3}>
                     <Typography variant="h5" fontWeight={900}>
-                        Create Admission (Nurse)
+                        Create Admission
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                         Search patient • validate active admission • choose Dept/Ward/Bed • create

@@ -262,7 +262,7 @@ export default function DoctorPatientAdmissionPage() {
     <Box sx={{ py: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Stack spacing={0.3}>
-          <Typography variant="h5" fontWeight={900}>Doctor Admission Management</Typography>
+          <Typography variant="h5" fontWeight={900}>Patient Admissions</Typography>
           <Typography variant="body2" color="text.secondary">View Admissions • Search • Sort • Open Details</Typography>
         </Stack>
 
@@ -291,7 +291,7 @@ export default function DoctorPatientAdmissionPage() {
       <Card variant="outlined">
         <CardContent>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ gap: 1, flexWrap: "wrap" }}>
-            <Typography fontWeight={900}>Admissions</Typography>
+            {/* <Typography fontWeight={900}>Admissions</Typography> */}
 
             <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
               <TextField
