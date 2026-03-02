@@ -733,13 +733,13 @@ export default function AdminDepartmentDetailsPage() {
                     fullWidth
                   />
 
-                  <TextField
+                  {/* <TextField
                     type="number"
                     label="Occupied beds"
                     value={wardOccupied}
                     onChange={(e) => setWardOccupied(Math.max(0, Number(e.target.value)))}
                     fullWidth
-                  />
+                  /> */}
                 </>
               )}
             
