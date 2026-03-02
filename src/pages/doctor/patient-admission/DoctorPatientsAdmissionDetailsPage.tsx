@@ -361,8 +361,8 @@ export default function DoctorAdmissionDetailsPage() {
             status: "DISCHARGED",
             dischargeNotes: dischargeNotes?.trim() || undefined,
             admittedAt: admission.admittedAt,
-            // IMPORTANT: doctor DOES NOT set dischargedAt
-            dischargedAt: null,
+            
+            // dischargedAt: null,
         } as any;
 
         await updateAdmission.mutateAsync({ id: admission.id, payload } as any);
@@ -421,7 +421,6 @@ export default function DoctorAdmissionDetailsPage() {
                 <Alert severity="info">Loading admission…</Alert>
             ) : (
                 <Grid container spacing={2}>
-                    {/* Left: admission info */}
                     <Grid size={{ xs: 12, md: 5 }}>
                         <Card variant="outlined">
                             <CardContent>
@@ -483,7 +482,6 @@ export default function DoctorAdmissionDetailsPage() {
                         </Card>
                     </Grid>
 
-                    {/* Right: tabs */}
                     <Grid size={{ xs: 12, md: 7 }}>
                         <Card variant="outlined">
                             <CardContent>
