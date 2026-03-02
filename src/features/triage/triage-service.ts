@@ -1,4 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { 
+  useMutation, useQuery, useQueryClient 
+} from "@tanstack/react-query";
 import type { TriageReq, TriageRes } from "./types";
 import * as triageApi from '../../api/triage.api'
 

@@ -29,7 +29,6 @@ type AuthState = {
     fetchCurrentUser: () => Promise<void>;
 };
 
-
 export const useAuthStore = create<AuthState>()(
     persist(
         (set, get) => ({
@@ -58,9 +57,6 @@ export const useAuthStore = create<AuthState>()(
                     if (remember) localStorage.setItem("auth-rememberMe", "true");
                     else localStorage.removeItem("auth-rememberMe");
 
-                    // localStorage.removeItem("auth-storage");
-                    // sessionStorage.removeItem("auth-storage");
-
                     set({
                         token: res.token,
                         username: res.username,
@@ -75,8 +71,6 @@ export const useAuthStore = create<AuthState>()(
                 }
             },
 
-
-
             logout: async () => {
                 set({
                     token: null,
@@ -88,12 +82,10 @@ export const useAuthStore = create<AuthState>()(
                     persistEnabled: false,
                 });
 
-
                 localStorage.removeItem("auth-rememberMe");
                 localStorage.removeItem("auth-storage");
                 sessionStorage.removeItem("auth-storage");
             },
-
 
             fetchCurrentUser: async () => {
                 const username = get().username;
@@ -143,8 +135,6 @@ export const useAuthStore = create<AuthState>()(
             ,
 
             partialize: (state: AuthState) => {
-                // if (!state.persistEnabled) return {};
-
                 if (state.token && state.username) {
                     return {
                         token: state.token,

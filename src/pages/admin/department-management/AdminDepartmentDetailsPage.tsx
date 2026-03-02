@@ -723,21 +723,26 @@ export default function AdminDepartmentDetailsPage() {
 
             <TextField label="Ward name" value={wardName} onChange={(e) => setWardName(e.target.value)} fullWidth />
 
-            <TextField
-              type="number"
-              label="Bed count"
-              value={wardBedCount}
-              onChange={(e) => setWardBedCount(Math.max(0, Number(e.target.value)))}
-              fullWidth
-            />
+              {wardFormMode === "create" && (
+                <>
+                  <TextField
+                    type="number"
+                    label="Bed count"
+                    value={wardBedCount}
+                    onChange={(e) => setWardBedCount(Math.max(0, Number(e.target.value)))}
+                    fullWidth
+                  />
 
-            <TextField
-              type="number"
-              label="Occupied beds"
-              value={wardOccupied}
-              onChange={(e) => setWardOccupied(Math.max(0, Number(e.target.value)))}
-              fullWidth
-            />
+                  <TextField
+                    type="number"
+                    label="Occupied beds"
+                    value={wardOccupied}
+                    onChange={(e) => setWardOccupied(Math.max(0, Number(e.target.value)))}
+                    fullWidth
+                  />
+                </>
+              )}
+            
 
             {wardFormMode === "create" && (
               <Card variant="outlined">
