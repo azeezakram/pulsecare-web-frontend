@@ -57,29 +57,29 @@ type DeptSortKey = "name" | "createdAt";
 type WardSortKey = "name" | "bedCount" | "occupiedBeds" | "createdAt";
 type BedSortKey = "bedNo" | "isTaken" | "createdAt";
 
-function BarList({ title, items }: { title: string; items: { label: string; value: number }[] }) {
-    const max = Math.max(1, ...items.map(i => i.value));
-    return (
-      <Card variant="outlined">
-        <CardContent>
-          <Typography fontWeight={800} sx={{ mb: 1 }}>{title}</Typography>
-          <Stack spacing={1}>
-            {items.map((i) => (
-              <Box key={i.label}>
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="body2">{i.label}</Typography>
-                  <Typography variant="body2" fontWeight={700}>{i.value}</Typography>
-                </Stack>
-                <Box sx={{ height: 8, bgcolor: "rgba(0,0,0,0.08)", mt: 0.5 }}>
-                  <Box sx={{ height: 8, width: `${(i.value / max) * 100}%`, bgcolor: "#03a8dd" }} />
-                </Box>
-              </Box>
-            ))}
-          </Stack>
-        </CardContent>
-      </Card>
-    );
-  }
+// function BarList({ title, items }: { title: string; items: { label: string; value: number }[] }) {
+//     const max = Math.max(1, ...items.map(i => i.value));
+//     return (
+//       <Card variant="outlined">
+//         <CardContent>
+//           <Typography fontWeight={800} sx={{ mb: 1 }}>{title}</Typography>
+//           <Stack spacing={1}>
+//             {items.map((i) => (
+//               <Box key={i.label}>
+//                 <Stack direction="row" justifyContent="space-between">
+//                   <Typography variant="body2">{i.label}</Typography>
+//                   <Typography variant="body2" fontWeight={700}>{i.value}</Typography>
+//                 </Stack>
+//                 <Box sx={{ height: 8, bgcolor: "rgba(0,0,0,0.08)", mt: 0.5 }}>
+//                   <Box sx={{ height: 8, width: `${(i.value / max) * 100}%`, bgcolor: "#03a8dd" }} />
+//                 </Box>
+//               </Box>
+//             ))}
+//           </Stack>
+//         </CardContent>
+//       </Card>
+//     );
+//   }
 
 export default function NurseDepartmentPage() {
   const deptsQuery = useAllDepartments();
@@ -253,15 +253,15 @@ export default function NurseDepartmentPage() {
     bedsQuery.isLoading;
 
 
-  const admissionStats =
-  {
-    "totalAdmissions": 1200,
-    "currentInPatients": 85,
-    "admissionsToday": 12,
-    "topDepartments": [{ "name": "Cardiology", "count": 220 }],
-    "topWards": [{ "name": "Ward A", "count": 140 }],
-    "occupancyTrend": [{ "date": "2026-02-01", "occupied": 70 }, { "date": "2026-02-02", "occupied": 78 }]
-  }
+  // const admissionStats =
+  // {
+  //   "totalAdmissions": 1200,
+  //   "currentInPatients": 85,
+  //   "admissionsToday": 12,
+  //   "topDepartments": [{ "name": "Cardiology", "count": 220 }],
+  //   "topWards": [{ "name": "Ward A", "count": 140 }],
+  //   "occupancyTrend": [{ "date": "2026-02-01", "occupied": 70 }, { "date": "2026-02-02", "occupied": 78 }]
+  // }
 
 
 
@@ -275,7 +275,7 @@ export default function NurseDepartmentPage() {
         <Chip label="NURSE VIEW" variant="outlined" />
       </Stack>
 
-      <Grid container spacing={2} sx={{ mb: 2 }}>
+      {/* <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <BarList
             title="Most Admitted Departments"
@@ -288,7 +288,7 @@ export default function NurseDepartmentPage() {
             items={(admissionStats?.topWards ?? []).map(x => ({ label: x.name, value: x.count }))}
           />
         </Grid>
-      </Grid>
+      </Grid> */}
 
 
       <Grid container spacing={2} sx={{ mb: 2 }}>

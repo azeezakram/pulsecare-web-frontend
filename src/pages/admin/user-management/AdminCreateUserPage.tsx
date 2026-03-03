@@ -15,8 +15,12 @@ import {
   Chip,
   Alert,
   Avatar,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import type { UserReq } from "../../../features/user/types";
 import type { DoctorDetailReq } from "../../../features/doctor-detail/type";
@@ -44,7 +48,6 @@ const emptyDoctorForm = (userId?: string): DoctorDetailReq => ({
   specializationIds: [],
 });
 
-// tiny debounce hook (no libs)
 function useDebouncedValue<T>(value: T, delayMs: number) {
   const [debounced, setDebounced] = React.useState(value);
   React.useEffect(() => {
@@ -78,8 +81,8 @@ export default function AdminCreateUserPage() {
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(null);
   const [profileUploadError, setProfileUploadError] = useState<string | null>(null);
+  const [showPwd, setShowPwd] = useState(false);
 
-  // ✅ filter dropdown roles (admins only see normal roles)
   const visibleRoles = useMemo(() => {
     const list = rolesQuery.data ?? [];
     if (isSuperAdmin) return list;
@@ -137,7 +140,6 @@ export default function AdminCreateUserPage() {
 
     if (u.roleId == null) errs.roles = "Select role";
 
-    // ✅ enforce: only SUPER_ADMIN can create SUPER_* roles
     if (u.roleId != null) {
       const chosen = (rolesQuery.data?.find((r) => r.id === u.roleId)?.name ?? "").toUpperCase();
       if (SUPER_ROLES.has(chosen) && !isSuperAdmin) {
@@ -314,6 +316,7 @@ export default function AdminCreateUserPage() {
                 error={!!errors.firstName}
                 helperText={errors.firstName}
                 fullWidth
+                required
               />
               <TextField
                 label="Last Name"
@@ -322,6 +325,7 @@ export default function AdminCreateUserPage() {
                 error={!!errors.lastName}
                 helperText={errors.lastName}
                 fullWidth
+                required
               />
             </Stack>
 
@@ -335,6 +339,7 @@ export default function AdminCreateUserPage() {
               error={Boolean(errors.username) || (usernameValidFormat && isUsernameTaken)}
               helperText={usernameHelperText}
               fullWidth
+              required
             />
 
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
@@ -357,13 +362,23 @@ export default function AdminCreateUserPage() {
             </Stack>
 
             <TextField
-              type="password"
+              type={showPwd ? "text" : "password"}
               label="Password"
               value={form.password ?? ""}
               onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
               error={!!errors.password}
               helperText={errors.password}
               fullWidth
+              required
+              InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPwd((v) => !v)} edge="end">
+                    {showPwd ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
             />
 
             <TextField
@@ -374,6 +389,7 @@ export default function AdminCreateUserPage() {
               error={!!errors.roles}
               helperText={errors.roles}
               fullWidth
+              required
             >
               {visibleRoles.map((r) => (
                 <MenuItem key={r.id} value={r.id}>
