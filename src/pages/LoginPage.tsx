@@ -12,6 +12,7 @@ import {
   useMediaQuery,
   IconButton,
   InputAdornment,
+  Alert,
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -248,6 +249,11 @@ export default function LoginPage() {
                 >
                   Forgot your password?
                 </Typography> */}
+                <Alert severity="info" sx={{ fontSize: "12px" }}>
+                  Default Admin - Username: admin | Password: admin123<br/>
+                  Default Nurse - Username: nurse | Password: nurse123<br/>
+                  Default Doctor - Username: doctor | Password: doctor123
+                </Alert>
               </Stack>
             </Box>
           </Box>
